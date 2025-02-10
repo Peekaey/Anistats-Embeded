@@ -22,7 +22,7 @@ public class AnilistApiService : IAnilistApiService
         _apiManager = apiManager;
     }
 
-    public async Task<ServiceResult> GetUserDataForApi(string username)
+    public async Task<ApiServiceResult> GetUserDataForApi(string username)
     {
         try
         {
@@ -34,21 +34,21 @@ public class AnilistApiService : IAnilistApiService
             var response = await _apiManager.SendGraphQLQueryAsync<AnilistUserResponseDto>(request);
             
             var jsonResponse = JsonSerializer.Serialize(response);
-            return ServiceResult.AsSuccess(jsonResponse);
+            return ApiServiceResult.AsSuccess(jsonResponse);
             
         }  catch (GraphQLHttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
-                return ServiceResult.AsFailure(HttpStatusCode.NotFound, "User not found");
+                return ApiServiceResult.AsFailure(HttpStatusCode.NotFound, "User not found");
             }
             _logger.LogUnhandledException(e, "GraphQLHttpRequestException from Anilist Api");
-            return ServiceResult.AsFailure(HttpStatusCode.InternalServerError, "GraphQLHttpRequestException from Anilist Api");
+            return ApiServiceResult.AsFailure(HttpStatusCode.InternalServerError, "GraphQLHttpRequestException from Anilist Api");
         }
         catch (Exception e)
         {
             _logger.LogUnhandledException(e, "Unhandled Exception fetching data from Anilist Api");
-            return ServiceResult.AsFailure(HttpStatusCode.InternalServerError, "Unhandled Exception fetching data from Anilist Api");
+            return ApiServiceResult.AsFailure(HttpStatusCode.InternalServerError, "Unhandled Exception fetching data from Anilist Api");
         }
     }
     
