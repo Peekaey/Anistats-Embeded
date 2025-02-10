@@ -1,0 +1,10 @@
+﻿query User($name: String) {
+  User(name: $name) {
+    avatar {
+      large
+    }
+    bannerImage
+    createdAt
+    name
+  }
+}
