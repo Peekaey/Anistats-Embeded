@@ -1,6 +1,6 @@
 ﻿namespace AniStats_Embeded_API.Models;
 
-public class AnimeResponseDto
+public class AnilistAnimeResponseDto
 {
     public Page Page { get; set; }
 }

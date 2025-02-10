@@ -1,6 +1,9 @@
-﻿namespace AniStats_Embeded_API.Interfaces;
+﻿using AniStats_Embeded_API.Models;
 
-public class IAnilistAPIService
+namespace AniStats_Embeded_API.Interfaces;
+
+public interface IAnilistApiService
 {
-    
+    Task<ServiceResult> GetUserDataForApi(string username);
+    Task<AnilistUserResponseDto?> GetUserData(string username);
 }

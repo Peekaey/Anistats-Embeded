@@ -6,5 +6,7 @@
     bannerImage
     createdAt
     name
+    id
+    siteUrl
   }
 }

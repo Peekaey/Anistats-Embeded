@@ -1,4 +1,6 @@
-
+using AniStats_Embeded_API.Helpers;
+using AniStats_Embeded_API.Interfaces;
+using AniStats_Embeded_API.Service;
 namespace AniStats_Embeded_API;
 
 public class Program
@@ -8,6 +10,8 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
+        builder.Services.AddSingleton<IAnilistApiService, AnilistApiService>();
+        builder.Services.AddSingleton<IApiManager, ApiManager>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

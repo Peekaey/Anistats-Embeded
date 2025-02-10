@@ -1,0 +1,6 @@
+﻿services:
+  anistats-embeded-api:
+    image: anistats-embeded-api
+    build:
+      context: .
+      dockerfile: AniStats-Embeded-API/Dockerfile
