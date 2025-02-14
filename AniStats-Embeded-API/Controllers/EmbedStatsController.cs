@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using AniStats_Embeded_API.Interfaces;
 using AniStats_Embeded_API.Models;
+using AniStats_Embeded_API.Models.ProfileCustomisations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AniStats_Embeded_API.Controllers;
@@ -11,14 +12,23 @@ public class EmbedStatsController : ControllerBase
 {
     private readonly ILogger<EmbedStatsController> _logger;
     private readonly IAnilistApiService _anilistAPIService;
+    private readonly IHtmlToStringHelper _htmlToStringHelper;
+    private readonly IPlaywrightService _playwrightService;
+    private readonly IRequestValidationHelpers _requestValidationHelpers;
     
-    public EmbedStatsController(ILogger<EmbedStatsController> logger, IAnilistApiService anilistAPIService)
+    public EmbedStatsController(ILogger<EmbedStatsController> logger, IAnilistApiService anilistAPIService, 
+        IHtmlToStringHelper htmlToStringHelper, 
+        IPlaywrightService playwrightService,
+        IRequestValidationHelpers requestValidationHelpers)
     {
         _logger = logger;
         _anilistAPIService = anilistAPIService;
+        _htmlToStringHelper = htmlToStringHelper;
+        _playwrightService = playwrightService;
+        _requestValidationHelpers = requestValidationHelpers;
     }
 
-
+    
     [HttpGet("userprofiledata", Name = "GetEmbedStats")]
     public async Task<IActionResult> GetUserProfileData(string username)
     {
@@ -32,34 +42,42 @@ public class EmbedStatsController : ControllerBase
         
         if (result.StatusCode == HttpStatusCode.OK)
         {
-            return Ok(result.Data);
+            return Ok(result.User.User.Name);
         }
 
         return StatusCode((int)result.StatusCode, result.ErrorMessage);
     }
     
     [HttpGet("embed", Name = "GetEmbedStatsPreview")]
-    public async Task<IActionResult> GetUserProfileEmbed(string username)
+    public async Task<IActionResult> GetUserProfileEmbed(string? username, int? template, string? profilecolour, string? theme, bool? showusername)
     {
-        if (string.IsNullOrEmpty(username))
-        {
-            return BadRequest("Username is required");
-        }
+        var validationResults = _requestValidationHelpers.ValidateApiRequest(username, template, profilecolour, theme, showusername);
 
-        var result = await _anilistAPIService.GetUserData(username);
+        if (validationResults.StatusCode != HttpStatusCode.OK)
+        {
+            return StatusCode((int)validationResults.StatusCode, validationResults.ErrorMessage);
+        }
         
-        var htmlContent = GenerateEmbedHtml(result);
-        return Content(htmlContent, "text/html");
+        var request = _requestValidationHelpers.MapProfileOptionsRequest(username, template.Value, profilecolour, theme, showusername);
+        var result = await _anilistAPIService.GetUserDataForApi(username);
+        
+        if (result.StatusCode == HttpStatusCode.OK)
+        {
+            var htmlContent = await _htmlToStringHelper.RenderHtmlToString(Templates.AnilistStyleProfileStats, result.User);
+            // return Ok(htmlContent);
+            try {
+                var image = await _playwrightService.ConvertHtmlTemplateToImage(htmlContent);
+                return File(image, "image/png");
+            } catch (Exception e)
+            {
+                _logger.LogError(e, "Error generating image");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Error generating image");
+            }
+            
+
+        }
+        
+        return StatusCode((int)result.StatusCode, result.ErrorMessage);
     }
     
-    private string GenerateEmbedHtml(AnilistUserResponseDto userData)
-    {
-        return $@"
-        <div style='width: 300px; border: 1px solid #ccc; padding: 10px; font-family: Arial, sans-serif;'>
-            <h3 style='margin: 0; padding-bottom: 5px; text-align: center;'>{userData.User.Name}'s Profile</h3>
-            <img src='{userData.User.Avatar.Large}' alt='Avatar' style='display: block; margin: auto; width: 100px; height: 100px; border-radius: 50%;'>
-            <p><strong>Anime Watched:</strong> {userData.User.Id}</p>
-
-        </div>";
-    }
 }

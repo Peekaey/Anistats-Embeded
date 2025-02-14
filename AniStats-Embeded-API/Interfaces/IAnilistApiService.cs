@@ -4,6 +4,6 @@ namespace AniStats_Embeded_API.Interfaces;
 
 public interface IAnilistApiService
 {
-    Task<ApiServiceResult> GetUserDataForApi(string username);
-    Task<AnilistUserResponseDto?> GetUserData(string username);
+    Task<AnilistApiUserResult> GetUserDataForApi(string username);
+    Task<AnilistUserStatsResponseDto?> GetUserData(string username);
 }

@@ -14,7 +14,7 @@ public class ApiServiceResult
         ErrorMessage = errorMessage;
     }
 
-    public static ApiServiceResult AsSuccess(string data)
+    public static ApiServiceResult AsSuccess(string? data = null)
     {
         return new ApiServiceResult(HttpStatusCode.OK) { Data = data };
     }

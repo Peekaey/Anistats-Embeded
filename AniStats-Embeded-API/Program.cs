@@ -11,7 +11,11 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddSingleton<IAnilistApiService, AnilistApiService>();
-        builder.Services.AddSingleton<IApiManager, ApiManager>();
+        builder.Services.AddSingleton<IApiManager, ApiManagerService>();
+        builder.Services.AddSingleton<IHtmlToStringHelper, HtmlToStringHelper>();
+        builder.Services.AddSingleton<IPlaywrightService, PlaywrightService>();
+        builder.Services.AddSingleton<IStatsCalculatorHelper, StatsCalculatorHelper>();
+        builder.Services.AddSingleton<IRequestValidationHelpers, RequestRequestValidationHelpers>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

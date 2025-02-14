@@ -1,4 +1,4 @@
-﻿namespace AniStats_Embeded_API.Helpers;
+﻿namespace AniStats_Embeded_API.Helpers.Extensions;
 
 public static class LoggerExtensions
 {
